@@ -10,6 +10,8 @@ import {
   ListItemText,
   Checkbox,
 } from "@mui/material";
+import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
+import dracula from "prism-react-renderer/themes/dracula";
 
 const App: React.FC = () => {
   const [items, setItems] = useState<WorkflowTemplateStep[]>([]);
@@ -49,6 +51,8 @@ const App: React.FC = () => {
     setNameInput(activeStep?.Name || "");
   }, [activeStep]);
 
+  const code = useMemo(() => JSON.stringify(items, null, 2), [items]);
+
   return (
     <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
       <div>
@@ -80,62 +84,73 @@ const App: React.FC = () => {
             </ListItem>
           )}
         />
-        {showDebug ? (
-          <p className="border border-orange-700">
-            {JSON.stringify(items, null, 2)}
-          </p>
-        ) : null}
       </div>
-      <div className="border border-orange-700">
-        {activeStep ? (
-          <>
-            <p>{activeStep.Name}</p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setItems(
-                  items.map((step) =>
-                    step.Id === activeStep.Id
-                      ? { ...step, Name: nameInput }
-                      : step
-                  )
-                );
-              }}
-            >
-              <input
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-              />
-              <button type="submit">Confirm</button>
-              <button
-                onClick={() => {
-                  setNameInput(activeStep.Name);
+      {showDebug ? (
+        <div className="bg-[#282a36] overflow-y-auto">
+          <LiveProvider
+            key={code}
+            code={code}
+            theme={dracula}
+            language="json"
+            disabled
+          >
+            <LiveEditor />
+            {/* <LiveError />
+            <LivePreview /> */}
+          </LiveProvider>
+        </div>
+      ) : (
+        <div className="border border-orange-700">
+          {activeStep ? (
+            <>
+              <p>{activeStep.Name}</p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setItems(
+                    items.map((step) =>
+                      step.Id === activeStep.Id
+                        ? { ...step, Name: nameInput }
+                        : step
+                    )
+                  );
                 }}
               >
-                Cancel
+                <input
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                />
+                <button type="submit">Confirm</button>
+                <button
+                  onClick={() => {
+                    setNameInput(activeStep.Name);
+                  }}
+                >
+                  Cancel
+                </button>
+              </form>
+              <Checkbox checked={!activeStep?.Optional} />
+              <button
+                onClick={() => {
+                  setItems(items.filter((step) => step.Id !== activeStep.Id));
+                  setActiveStepId(null);
+                }}
+              >
+                Delete step
               </button>
-            </form>
-            <Checkbox checked={!activeStep?.Optional} />
-            <button
-              onClick={() => {
-                setItems(items.filter((step) => step.Id !== activeStep.Id));
-                setActiveStepId(null);
-              }}
-            >
-              Delete step
-            </button>
-            {activeStep.WorkflowStepUsers.length ? (
-              activeStep.WorkflowStepUsers.map((user) => (
-                <p key={user.Id}>{JSON.stringify(user)}</p>
-              ))
-            ) : (
-              <p>No users for this step</p>
-            )}
-          </>
-        ) : (
-          <p>Please select a step to view details</p>
-        )}
-      </div>
+              {activeStep.WorkflowStepUsers.length ? (
+                activeStep.WorkflowStepUsers.map((user) => (
+                  <p key={user.Id}>{JSON.stringify(user)}</p>
+                ))
+              ) : (
+                <p>No users for this step</p>
+              )}
+            </>
+          ) : (
+            <p>Please select a step to view details</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
