@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, FormEvent } from "react";
 import { List, arrayMove } from "react-movable";
-import { WorkflowTemplateStep } from "./types";
+import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from "./types";
 import { v4 as uuid } from "uuid";
 import {
   ListItem,
@@ -12,6 +12,31 @@ import {
 } from "@mui/material";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import dracula from "prism-react-renderer/themes/dracula";
+import StepDetails from "./components/StepDetails";
+
+const currentUser = {
+  Id: "6ec15df4-b98f-414c-97e6-6556301bf86f",
+  WorkflowStepId: "24ec985a-70c8-44e4-a88d-f06abfd65592",
+  Email: "@Author",
+  Firstname: "Auteur",
+  Lastname: "",
+  Rights: 0,
+  Optional: false,
+  DisplayName: null,
+  FieldId: "b662fac3-15d5-4064-9bf1-6d8ebc44b33c",
+  Conditions: [],
+  ConditionNode: null,
+};
+
+const updateStep = (
+  originalSteps: WorkflowTemplateStep[],
+  stepId: string,
+  data: WorkflowTemplateStepUpdateDTO
+) => {
+  return originalSteps.map((step) =>
+    step.Id === stepId ? { ...step, ...data } : step
+  );
+};
 
 const App: React.FC = () => {
   const [items, setItems] = useState<WorkflowTemplateStep[]>([]);
@@ -33,7 +58,7 @@ const App: React.FC = () => {
       ParentId: null,
       StepOrder: items.length,
       Optional: true,
-      WorkflowStepUsers: [],
+      WorkflowStepUsers: [currentUser],
     };
     setItems([...items, newItem]);
     setActiveStepId(newItem.Id);
@@ -45,13 +70,20 @@ const App: React.FC = () => {
     setShowDebug(!showDebug);
   }, [showDebug]);
 
-  const [nameInput, setNameInput] = useState("");
-
-  useEffect(() => {
-    setNameInput(activeStep?.Name || "");
-  }, [activeStep]);
-
-  const code = useMemo(() => JSON.stringify(items, null, 2), [items]);
+  const code = useMemo(
+    () =>
+      JSON.stringify(
+        {
+          Id: "9162dbc5-c541-4e1b-b6c0-f81079e3eac5",
+          Name: "Avenant - workflow",
+          IdTemplate: "e9b6f68b-b195-41bf-b141-2b0a2eb7d9c1",
+          WorkflowTemplateSteps: items,
+        },
+        null,
+        2
+      ),
+    [items]
+  );
 
   return (
     <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
@@ -95,57 +127,25 @@ const App: React.FC = () => {
             disabled
           >
             <LiveEditor />
-            {/* <LiveError />
-            <LivePreview /> */}
           </LiveProvider>
         </div>
       ) : (
         <div className="border border-orange-700">
           {activeStep ? (
-            <>
-              <p>{activeStep.Name}</p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setItems(
-                    items.map((step) =>
-                      step.Id === activeStep.Id
-                        ? { ...step, Name: nameInput }
-                        : step
-                    )
-                  );
-                }}
-              >
-                <input
-                  value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                />
-                <button type="submit">Confirm</button>
-                <button
-                  onClick={() => {
-                    setNameInput(activeStep.Name);
-                  }}
-                >
-                  Cancel
-                </button>
-              </form>
-              <Checkbox checked={!activeStep?.Optional} />
-              <button
-                onClick={() => {
-                  setItems(items.filter((step) => step.Id !== activeStep.Id));
-                  setActiveStepId(null);
-                }}
-              >
-                Delete step
-              </button>
-              {activeStep.WorkflowStepUsers.length ? (
-                activeStep.WorkflowStepUsers.map((user) => (
-                  <p key={user.Id}>{JSON.stringify(user)}</p>
-                ))
-              ) : (
-                <p>No users for this step</p>
-              )}
-            </>
+            <StepDetails
+              key={activeStepId}
+              step={activeStep}
+              onDelete={() => {
+                setItems(items.filter((step) => step.Id !== activeStep.Id));
+                setActiveStepId(null);
+              }}
+              onEditName={(nameInput: string) => {
+                const updatedSteps = updateStep(items, activeStep.Id, {
+                  Name: nameInput,
+                });
+                setItems(updatedSteps);
+              }}
+            />
           ) : (
             <p>Please select a step to view details</p>
           )}

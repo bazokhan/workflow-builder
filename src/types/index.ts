@@ -29,6 +29,15 @@ export type WorkflowTemplateStep = {
   WorkflowStepUsers: WorkflowStepUser[];
 };
 
+export type WorkflowTemplateStepUpdateDTO = {
+  Name?: string;
+  Description?: string | null;
+  ParentId?: string | null;
+  StepOrder?: number;
+  Optional?: boolean;
+  WorkflowStepUsers?: WorkflowStepUser[];
+};
+
 export type WorkflowTemplate = {
   Id: string;
   Name: string;
