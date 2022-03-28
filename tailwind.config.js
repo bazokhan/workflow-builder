@@ -1,11 +1,11 @@
 module.exports = {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       gridTemplateColumns: {
-        aside: "300px 1fr",
-      },
-    },
+        aside: '300px 1fr'
+      }
+    }
   },
-  plugins: [],
+  plugins: []
 };

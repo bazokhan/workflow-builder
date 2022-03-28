@@ -1,6 +1,6 @@
-import { FormEvent, useState, useMemo } from "react";
-import { Checkbox } from "@mui/material";
-import { WorkflowTemplateStep } from "../types";
+import { FormEvent, useState, useMemo } from 'react';
+import { Checkbox } from '@mui/material';
+import { WorkflowTemplateStep } from '../types';
 
 type Props = {
   step: WorkflowTemplateStep;
@@ -10,10 +10,7 @@ type Props = {
 
 const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
   const [nameInput, setNameInput] = useState(step.Name);
-  const stepUsers = useMemo(
-    () => step.WorkflowStepUsers,
-    [step.WorkflowStepUsers]
-  );
+  const stepUsers = useMemo(() => step.WorkflowStepUsers, [step.WorkflowStepUsers]);
   const mandatoryUsers = stepUsers.filter((user) => !user.Optional);
   const otherUsers = stepUsers.filter((user) => user.Optional);
   return (
@@ -25,10 +22,7 @@ const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
           onEditName(nameInput);
         }}
       >
-        <input
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-        />
+        <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} />
         <button type="submit">Confirm</button>
         <button
           onClick={() => {
@@ -42,9 +36,7 @@ const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
       <button onClick={onDelete}>Delete step</button>
       <p>Mandatory Users</p>
       {mandatoryUsers.length ? (
-        mandatoryUsers.map((user) => (
-          <p key={user.Id}>{JSON.stringify(user)}</p>
-        ))
+        mandatoryUsers.map((user) => <p key={user.Id}>{JSON.stringify(user)}</p>)
       ) : (
         <p>No users for this step</p>
       )}

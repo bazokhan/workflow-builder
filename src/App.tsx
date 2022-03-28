@@ -1,31 +1,31 @@
-import { useCallback, useEffect, useState, useMemo, FormEvent } from "react";
-import { List, arrayMove } from "react-movable";
-import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from "./types";
-import { v4 as uuid } from "uuid";
+import { useCallback, useEffect, useState, useMemo, FormEvent } from 'react';
+import { List, arrayMove } from 'react-movable';
+import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from './types';
+import { v4 as uuid } from 'uuid';
 import {
   ListItem,
   List as UIList,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Checkbox,
-} from "@mui/material";
-import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import dracula from "prism-react-renderer/themes/dracula";
-import StepDetails from "./components/StepDetails";
+  Checkbox
+} from '@mui/material';
+import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
+import dracula from 'prism-react-renderer/themes/dracula';
+import StepDetails from './components/StepDetails';
 
 const currentUser = {
-  Id: "6ec15df4-b98f-414c-97e6-6556301bf86f",
-  WorkflowStepId: "24ec985a-70c8-44e4-a88d-f06abfd65592",
-  Email: "@Author",
-  Firstname: "Auteur",
-  Lastname: "",
+  Id: '6ec15df4-b98f-414c-97e6-6556301bf86f',
+  WorkflowStepId: '24ec985a-70c8-44e4-a88d-f06abfd65592',
+  Email: '@Author',
+  Firstname: 'Auteur',
+  Lastname: '',
   Rights: 0,
   Optional: false,
   DisplayName: null,
-  FieldId: "b662fac3-15d5-4064-9bf1-6d8ebc44b33c",
+  FieldId: 'b662fac3-15d5-4064-9bf1-6d8ebc44b33c',
   Conditions: [],
-  ConditionNode: null,
+  ConditionNode: null
 };
 
 const updateStep = (
@@ -33,9 +33,7 @@ const updateStep = (
   stepId: string,
   data: WorkflowTemplateStepUpdateDTO
 ) => {
-  return originalSteps.map((step) =>
-    step.Id === stepId ? { ...step, ...data } : step
-  );
+  return originalSteps.map((step) => (step.Id === stepId ? { ...step, ...data } : step));
 };
 
 const App: React.FC = () => {
@@ -53,12 +51,12 @@ const App: React.FC = () => {
       WorkflowTemplateId: uuid() as string,
       ConditionRootId: uuid() as string,
       Name: `Step #${items.length + 1}`,
-      Description: "",
+      Description: '',
       BuiltinOption: 0,
       ParentId: null,
       StepOrder: items.length,
       Optional: true,
-      WorkflowStepUsers: [currentUser],
+      WorkflowStepUsers: [currentUser]
     };
     setItems([...items, newItem]);
     setActiveStepId(newItem.Id);
@@ -74,10 +72,10 @@ const App: React.FC = () => {
     () =>
       JSON.stringify(
         {
-          Id: "9162dbc5-c541-4e1b-b6c0-f81079e3eac5",
-          Name: "Avenant - workflow",
-          IdTemplate: "e9b6f68b-b195-41bf-b141-2b0a2eb7d9c1",
-          WorkflowTemplateSteps: items,
+          Id: '9162dbc5-c541-4e1b-b6c0-f81079e3eac5',
+          Name: 'Avenant - workflow',
+          IdTemplate: 'e9b6f68b-b195-41bf-b141-2b0a2eb7d9c1',
+          WorkflowTemplateSteps: items
         },
         null,
         2
@@ -92,13 +90,11 @@ const App: React.FC = () => {
           Add item
         </button>
         <button className="border border-pink-700" onClick={toggleDebug}>
-          {showDebug ? "Close Debug" : "Open Debug"}
+          {showDebug ? 'Close Debug' : 'Open Debug'}
         </button>
         <List
           values={items}
-          onChange={({ oldIndex, newIndex }) =>
-            setItems(arrayMove(items, oldIndex, newIndex))
-          }
+          onChange={({ oldIndex, newIndex }) => setItems(arrayMove(items, oldIndex, newIndex))}
           renderList={({ children, props }) => (
             <UIList className="border border-green-600" {...props}>
               {children}
@@ -119,13 +115,7 @@ const App: React.FC = () => {
       </div>
       {showDebug ? (
         <div className="bg-[#282a36] overflow-y-auto">
-          <LiveProvider
-            key={code}
-            code={code}
-            theme={dracula}
-            language="json"
-            disabled
-          >
+          <LiveProvider key={code} code={code} theme={dracula} language="json" disabled>
             <LiveEditor />
           </LiveProvider>
         </div>
@@ -141,7 +131,7 @@ const App: React.FC = () => {
               }}
               onEditName={(nameInput: string) => {
                 const updatedSteps = updateStep(items, activeStep.Id, {
-                  Name: nameInput,
+                  Name: nameInput
                 });
                 setItems(updatedSteps);
               }}
