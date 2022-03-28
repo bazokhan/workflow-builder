@@ -1,17 +1,10 @@
-import { useCallback, useEffect, useState, useMemo, FormEvent } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { List, arrayMove } from 'react-movable';
-import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from './types';
 import { v4 as uuid } from 'uuid';
-import {
-  ListItem,
-  List as UIList,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Checkbox
-} from '@mui/material';
-import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
+import { ListItem, List as UIList, ListItemIcon, ListItemText, Checkbox } from '@mui/material';
+import { LiveProvider, LiveEditor } from 'react-live';
 import dracula from 'prism-react-renderer/themes/dracula';
+import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from './types';
 import StepDetails from './components/StepDetails';
 
 const currentUser = {
@@ -86,10 +79,10 @@ const App: React.FC = () => {
   return (
     <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
       <div>
-        <button className="border border-pink-700" onClick={addItem}>
+        <button className="border border-pink-700" type="button" onClick={addItem}>
           Add item
         </button>
-        <button className="border border-pink-700" onClick={toggleDebug}>
+        <button className="border border-pink-700" type="button" onClick={toggleDebug}>
           {showDebug ? 'Close Debug' : 'Open Debug'}
         </button>
         <List

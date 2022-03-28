@@ -1,4 +1,4 @@
-import { FormEvent, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Checkbox } from '@mui/material';
 import { WorkflowTemplateStep } from '../types';
 
@@ -28,12 +28,15 @@ const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
           onClick={() => {
             setNameInput(step.Name);
           }}
+          type="button"
         >
           Cancel
         </button>
       </form>
       <Checkbox checked={!step?.Optional} />
-      <button onClick={onDelete}>Delete step</button>
+      <button onClick={onDelete} type="button">
+        Delete step
+      </button>
       <p>Mandatory Users</p>
       {mandatoryUsers.length ? (
         mandatoryUsers.map((user) => <p key={user.Id}>{JSON.stringify(user)}</p>)
