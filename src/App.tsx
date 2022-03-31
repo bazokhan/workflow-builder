@@ -10,12 +10,12 @@ const App: React.FC = () => {
 
   return (
     <StepsProvider>
-      <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
+      <div className="w-screen h-screen overflow-hidden grid grid-cols-aside">
         <div className="overflow-y-hidden h-screen">
           <SidebarHeader showDebug={showDebug} setShowDebug={setShowDebug} />
           <DnDTree />
         </div>
-        <div className="bg-[#282a36] overflow-y-auto max-w-full">
+        <div className={`${showDebug ? 'bg-[#282a36]' : 'bg-white'} overflow-y-auto max-w-full`}>
           {showDebug ? <DebugDetails /> : <StepDetails />}
         </div>
       </div>

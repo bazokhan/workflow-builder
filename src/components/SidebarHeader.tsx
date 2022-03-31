@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
+import { Button } from '@mui/material';
 import { useSteps } from '../context/StepsProvider';
 import { WorkflowTemplateStep } from '../types';
 
@@ -47,13 +48,21 @@ const SidebarHeader: React.FC<Props> = ({ showDebug, setShowDebug }) => {
   }, [setShowDebug, showDebug]);
 
   return (
-    <div>
-      <button className="border border-pink-700" type="button" onClick={addItem}>
-        Add item
-      </button>
-      <button className="border border-pink-700" type="button" onClick={toggleDebug}>
+    <div className="flex p-4 bg-[#f5f5f5] w-full justify-between">
+      <Button
+        className="!text-[#6740bf] !border-[#6740bf] !rounded-full !font-semibold"
+        variant="outlined"
+        onClick={addItem}
+      >
+        Add a step
+      </Button>
+      <Button
+        className="!text-[#6740bf] !border-[#6740bf] !rounded-full !font-semibold"
+        variant="outlined"
+        onClick={toggleDebug}
+      >
         {showDebug ? 'Close Debug' : 'Open Debug'}
-      </button>
+      </Button>
     </div>
   );
 };

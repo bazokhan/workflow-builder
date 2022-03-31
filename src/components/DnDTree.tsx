@@ -107,7 +107,7 @@ const DnDTree: React.FC = () => {
                   <DragIndicatorIcon />
                 </ListItemIcon>
               )}
-              <ListItemText id={value.Id} primary={`${value.Name}-${(index || 0) / 2}`} />
+              <ListItemText id={value.Id} primary={`${value.Name}`} />
               <Radio
                 sx={{
                   color: '#aeaeae',
