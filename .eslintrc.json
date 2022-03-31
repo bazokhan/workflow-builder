@@ -31,7 +31,8 @@
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
     "react/prop-types": "off",
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "lines-between-class-members": "off"
   },
   "overrides": [
     {

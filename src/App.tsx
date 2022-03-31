@@ -1,11 +1,11 @@
+/* eslint-disable no-nested-ternary */
 import { useCallback, useState, useMemo } from 'react';
-import { List, arrayMove } from 'react-movable';
 import { v4 as uuid } from 'uuid';
-import { ListItem, List as UIList, ListItemIcon, ListItemText, Checkbox } from '@mui/material';
 import { LiveProvider, LiveEditor } from 'react-live';
 import dracula from 'prism-react-renderer/themes/dracula';
 import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from './types';
 import StepDetails from './components/StepDetails';
+import DnDTree from './components/DnDTree';
 
 const currentUser = {
   Id: '6ec15df4-b98f-414c-97e6-6556301bf86f',
@@ -30,12 +30,12 @@ const updateStep = (
 };
 
 const App: React.FC = () => {
-  const [items, setItems] = useState<WorkflowTemplateStep[]>([]);
+  const [steps, setSteps] = useState<WorkflowTemplateStep[]>([]);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
 
   const activeStep = useMemo(
-    () => items.find((step) => step.Id === activeStepId),
-    [items, activeStepId]
+    () => steps.find((step) => step.Id === activeStepId),
+    [steps, activeStepId]
   );
 
   const addItem = useCallback(() => {
@@ -43,17 +43,17 @@ const App: React.FC = () => {
       Id: uuid() as string,
       WorkflowTemplateId: uuid() as string,
       ConditionRootId: uuid() as string,
-      Name: `Step #${items.length + 1}`,
+      Name: `Step #${steps.length + 1}`,
       Description: '',
       BuiltinOption: 0,
       ParentId: null,
-      StepOrder: items.length,
+      StepOrder: steps.length,
       Optional: true,
       WorkflowStepUsers: [currentUser]
     };
-    setItems([...items, newItem]);
+    setSteps([...steps, newItem]);
     setActiveStepId(newItem.Id);
-  }, [items]);
+  }, [steps]);
 
   const [showDebug, setShowDebug] = useState(false);
 
@@ -68,65 +68,51 @@ const App: React.FC = () => {
           Id: '9162dbc5-c541-4e1b-b6c0-f81079e3eac5',
           Name: 'Avenant - workflow',
           IdTemplate: 'e9b6f68b-b195-41bf-b141-2b0a2eb7d9c1',
-          WorkflowTemplateSteps: items
+          WorkflowTemplateSteps: steps
         },
         null,
         2
       ),
-    [items]
+    [steps]
   );
 
   return (
     <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
-      <div>
+      <div className="overflow-y-auto">
         <button className="border border-pink-700" type="button" onClick={addItem}>
           Add item
         </button>
         <button className="border border-pink-700" type="button" onClick={toggleDebug}>
           {showDebug ? 'Close Debug' : 'Open Debug'}
         </button>
-        <List
-          values={items}
-          onChange={({ oldIndex, newIndex }) => setItems(arrayMove(items, oldIndex, newIndex))}
-          renderList={({ children, props }) => (
-            <UIList className="border border-green-600" {...props}>
-              {children}
-            </UIList>
-          )}
-          renderItem={({ value, props }) => (
-            <ListItem className="border border-blue-800" {...props}>
-              <ListItemIcon>
-                <Checkbox
-                  checked={activeStep?.Id === value.Id}
-                  onClick={() => setActiveStepId(value.Id)}
-                />
-              </ListItemIcon>
-              <ListItemText id={value.Id} primary={value.Name} />
-            </ListItem>
-          )}
+        <DnDTree
+          steps={steps}
+          activeStep={activeStep}
+          setSteps={setSteps}
+          setActiveStepId={setActiveStepId}
         />
       </div>
       {showDebug ? (
-        <div className="bg-[#282a36] overflow-y-auto">
+        <div className="bg-[#282a36] overflow-y-auto max-w-full">
           <LiveProvider key={code} code={code} theme={dracula} language="json" disabled>
             <LiveEditor />
           </LiveProvider>
         </div>
       ) : (
-        <div className="border border-orange-700">
+        <div className="bg-[#282a36] overflow-y-auto max-w-full">
           {activeStep ? (
             <StepDetails
               key={activeStepId}
               step={activeStep}
               onDelete={() => {
-                setItems(items.filter((step) => step.Id !== activeStep.Id));
+                setSteps(steps.filter((step) => step.Id !== activeStep.Id));
                 setActiveStepId(null);
               }}
               onEditName={(nameInput: string) => {
-                const updatedSteps = updateStep(items, activeStep.Id, {
+                const updatedSteps = updateStep(steps, activeStep.Id, {
                   Name: nameInput
                 });
-                setItems(updatedSteps);
+                setSteps(updatedSteps);
               }}
             />
           ) : (
