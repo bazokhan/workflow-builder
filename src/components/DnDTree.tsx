@@ -1,17 +1,47 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { useCallback } from 'react';
 import { List, arrayMove } from 'react-movable';
 import { ListItem, List as UIList, ListItemIcon, ListItemText, Checkbox } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { WorkflowTemplateStep } from '../types';
+import { useSteps } from '../context/StepsProvider';
 
-type Props = {
-  steps: WorkflowTemplateStep[];
-  activeStep?: WorkflowTemplateStep;
-  setActiveStepId: Dispatch<SetStateAction<string | null>>;
-  setSteps: Dispatch<SetStateAction<WorkflowTemplateStep[]>>;
-};
+const DnDTree: React.FC = () => {
+  const { steps, activeStep, setActiveStepId, setSteps } = useSteps();
 
-const DnDTree: React.FC<Props> = ({ steps = [], activeStep, setActiveStepId, setSteps }) => {
+  const onDragEnd = useCallback(
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
+      const actualOldIndex = Math.floor(oldIndex / 2);
+      const actualNewIndex =
+        newIndex < oldIndex ? Math.ceil(newIndex / 2) : Math.floor(newIndex / 2);
+      if (oldIndex === newIndex) return;
+      const droppedAsChild = newIndex < oldIndex ? newIndex % 2 !== 0 : newIndex % 2 === 0;
+      const parent = droppedAsChild ? steps[actualNewIndex - 1] : null;
+      if (parent) {
+        const newArray = steps.map((step, index) =>
+          index === actualOldIndex ? { ...step, ParentId: parent.Id } : step
+        );
+        const targetItem = newArray.find((_, index) => index === actualOldIndex);
+        const targetItemChildren = newArray.filter((item) => item.ParentId === targetItem?.Id);
+        if (targetItemChildren?.length) return;
+        // TODO: add multiple levels of nesting
+        const indicesToBeMoved = [targetItem, ...targetItemChildren].map((item) => {
+          const oldIdx = newArray.findIndex((i) => i.Id === item?.Id);
+          const newIdx = oldIdx + (actualNewIndex - actualOldIndex);
+          return { oldIdx, newIdx };
+        });
+        const newStateArray = indicesToBeMoved.reduce((prev, { oldIdx, newIdx }) => {
+          return arrayMove(prev, oldIdx, newIdx);
+        }, newArray);
+        setSteps(newStateArray);
+      } else {
+        const newArray = steps.map((step, index) =>
+          index === actualOldIndex ? { ...step, ParentId: null } : step
+        );
+        setSteps(arrayMove(newArray, actualOldIndex, actualNewIndex));
+      }
+    },
+    [setSteps, steps]
+  );
+
   return (
     <List
       values={steps
@@ -21,37 +51,7 @@ const DnDTree: React.FC<Props> = ({ steps = [], activeStep, setActiveStepId, set
         ])
         .flat()}
       lockVertically
-      onChange={({ oldIndex, newIndex }) => {
-        const actualOldIndex = Math.floor(oldIndex / 2);
-        const actualNewIndex =
-          newIndex < oldIndex ? Math.ceil(newIndex / 2) : Math.floor(newIndex / 2);
-        if (oldIndex === newIndex) return;
-        const droppedAsChild = newIndex < oldIndex ? newIndex % 2 !== 0 : newIndex % 2 === 0;
-        const parent = droppedAsChild ? steps[actualNewIndex - 1] : null;
-        if (parent) {
-          const newArray = steps.map((step, index) =>
-            index === actualOldIndex ? { ...step, ParentId: parent.Id } : step
-          );
-          const targetItem = newArray.find((_, index) => index === actualOldIndex);
-          const targetItemChildren = newArray.filter((item) => item.ParentId === targetItem?.Id);
-          if (targetItemChildren?.length) return;
-          // TODO: add multiple levels of nesting
-          const indicesToBeMoved = [targetItem, ...targetItemChildren].map((item) => {
-            const oldIdx = newArray.findIndex((i) => i.Id === item?.Id);
-            const newIdx = oldIdx + (actualNewIndex - actualOldIndex);
-            return { oldIdx, newIdx };
-          });
-          const newStateArray = indicesToBeMoved.reduce((prev, { oldIdx, newIdx }) => {
-            return arrayMove(prev, oldIdx, newIdx);
-          }, newArray);
-          setSteps(newStateArray);
-        } else {
-          const newArray = steps.map((step, index) =>
-            index === actualOldIndex ? { ...step, ParentId: null } : step
-          );
-          setSteps(arrayMove(newArray, actualOldIndex, actualNewIndex));
-        }
-      }}
+      onChange={onDragEnd}
       renderList={({ children, props }) => (
         <UIList className="border border-green-600" {...props}>
           {children}

@@ -1,39 +1,62 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Checkbox } from '@mui/material';
-import { WorkflowTemplateStep } from '../types';
+import { WorkflowTemplateStep, WorkflowTemplateStepUpdateDTO } from '../types';
+import { useSteps } from '../context/StepsProvider';
 
-type Props = {
-  step: WorkflowTemplateStep;
-  onEditName: (newName: string) => void;
-  onDelete: () => void;
+const updateStep = (
+  originalSteps: WorkflowTemplateStep[],
+  stepId: string,
+  data: WorkflowTemplateStepUpdateDTO
+) => {
+  return originalSteps.map((step) => (step.Id === stepId ? { ...step, ...data } : step));
 };
 
-const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
-  const [nameInput, setNameInput] = useState(step.Name);
-  const stepUsers = useMemo(() => step.WorkflowStepUsers, [step.WorkflowStepUsers]);
+const StepDetails: React.FC = () => {
+  const { activeStep, steps, setSteps, setActiveStepId } = useSteps();
+  const [nameInput, setNameInput] = useState(activeStep?.Name || '');
+
+  const stepUsers = useMemo(
+    () => activeStep?.WorkflowStepUsers || [],
+    [activeStep?.WorkflowStepUsers]
+  );
   const mandatoryUsers = stepUsers.filter((user) => !user.Optional);
   const otherUsers = stepUsers.filter((user) => user.Optional);
-  return (
+
+  const onDelete = useCallback(() => {
+    setSteps(steps.filter((s) => s.Id !== activeStep?.Id));
+    setActiveStepId(null);
+  }, [activeStep?.Id, setActiveStepId, setSteps, steps]);
+
+  const onEditName = useCallback(() => {
+    if (!activeStep) return;
+    if (nameInput === activeStep?.Name) return;
+    const updatedSteps = updateStep(steps, activeStep.Id, {
+      Name: nameInput
+    });
+    setSteps(updatedSteps);
+  }, [activeStep, nameInput, setSteps, steps]);
+
+  return activeStep ? (
     <>
-      <p>{step.Name}</p>
+      <p>{activeStep.Name}</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onEditName(nameInput);
+          onEditName();
         }}
       >
         <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} />
         <button type="submit">Confirm</button>
         <button
           onClick={() => {
-            setNameInput(step.Name);
+            setNameInput(activeStep.Name);
           }}
           type="button"
         >
           Cancel
         </button>
       </form>
-      <Checkbox checked={!step?.Optional} />
+      <Checkbox checked={!activeStep?.Optional} />
       <button onClick={onDelete} type="button">
         Delete step
       </button>
@@ -50,6 +73,8 @@ const StepDetails: React.FC<Props> = ({ step, onEditName, onDelete }) => {
         <p>No users for this step</p>
       )}
     </>
+  ) : (
+    <p>Please select a step to view details</p>
   );
 };
 
