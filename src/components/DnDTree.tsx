@@ -1,17 +1,9 @@
 import { useCallback, useState } from 'react';
 import { List, arrayMove } from 'react-movable';
-import {
-  ListItem,
-  List as UIList,
-  ListItemIcon,
-  ListItemText,
-  Radio,
-  Box,
-  Avatar,
-  Typography
-} from '@mui/material';
+import { ListItem, List as UIList, ListItemIcon, ListItemText, Radio } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { useSteps } from '../context/StepsProvider';
+import UserAvatar from './UserAvatar';
 
 const DnDTree: React.FC = () => {
   const { steps, activeStep, setActiveStepId, setSteps } = useSteps();
@@ -89,7 +81,7 @@ const DnDTree: React.FC = () => {
               isDragging
                 ? 'bg-transparent border-none'
                 : `${isActive ? 'border-[#5c02bb] bg-white' : 'border-[#ececec] bg-white'}`
-            } mb-2 h-4 rounded-b-lg border-t-transparent`}
+            } mb-6 h-4 rounded-b-lg border-t-transparent`}
           />
         ) : (
           <div
@@ -123,41 +115,9 @@ const DnDTree: React.FC = () => {
                 onClick={() => setActiveStepId(value.Id)}
               />
             </ListItem>
-            <Box
-              sx={{
-                display: 'flex',
-                backgroundColor: '#f1f1f1',
-                borderRadius: '10px',
-                padding: '4px 8px',
-                margin: '0 8px',
-                width: 'fit-content'
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: '30px',
-                  height: '30px',
-                  color: '#5e11bc',
-                  fontSize: '12px',
-                  backgroundColor: '#dfd6e9'
-                }}
-              >
-                {value.WorkflowStepUsers?.[0].Firstname?.[0]}
-              </Avatar>
-              <Typography
-                component="p"
-                sx={{
-                  marginLeft: '5px',
-                  color: '#61585b',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                {value.WorkflowStepUsers?.[0].Firstname}
-              </Typography>
-            </Box>
+            {value.WorkflowStepUsers?.length
+              ? value.WorkflowStepUsers.map((user) => <UserAvatar key={user.Id} user={user} />)
+              : null}
           </div>
         );
       }}
