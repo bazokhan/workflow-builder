@@ -3,7 +3,7 @@ module.exports = {
   theme: {
     extend: {
       gridTemplateColumns: {
-        aside: '300px 1fr'
+        aside: '400px 1fr'
       }
     }
   },

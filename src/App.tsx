@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     <StepsProvider>
       <div className="w-screen h-screen overflow-hidden border border-red-700 grid grid-cols-aside">
-        <div className="overflow-y-auto">
+        <div className="overflow-y-hidden h-screen">
           <SidebarHeader showDebug={showDebug} setShowDebug={setShowDebug} />
           <DnDTree />
         </div>
